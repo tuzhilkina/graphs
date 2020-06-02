@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <array>
-#include<iomanip>
+#include <iomanip>
 using namespace std;
 
 class Tree {
@@ -30,7 +30,7 @@ private:
 	array<int, n> R{ 0 };
 	// модифицированный список предков, хранит номер дуги, вход€щей в вершину i
 	array<int, n> P{ 0 };
-	// очередь вершин дл€ просмотра
+	// вершины дл€ просмотра
 	array<int, n> Q{ 0 };
 	// корень дерева кратчайших путей
 	const int s{ 0 };
@@ -39,11 +39,11 @@ private:
 Tree::Tree() {
 	for (auto& it : H) it = -1;
 	for (auto& it : L) it = -1;
-	for (auto& it : R) it = -1;
-	R[s] = 1024;
-	for (auto& it : P) it = -2;
-	P[s] = -1;
-	for (auto& it : Q) it = -1;
+	for (auto& it : R) it = 1024; 
+	R[s] = 0; 
+	for (auto& it : P) it = -2; // ¬се вершины недоступны
+	P[s] = -1; // // ” нее нет предка
+	for (auto& it : Q) it = -2;
 
 	for (size_t k(0); k < m; ++k) {
 		int i = I[k];
@@ -57,7 +57,7 @@ Tree::Tree() {
 		// берем вершину из очереди дл€ просмотра
 		int min(1024); // текущий минимум
 		int j(h_Q); // текуща€ вершина при проходе по списку
-		int pj(-1); // предыдуща€
+		int pj(-1); // предыдуща€ вершина при проходе по списку
 		int pi(-1); // вершина, на которой достигаетс€ минимум
 		int i(-1);
 		for (pj, j; j != -1; pj = j, j = Q[j]) {

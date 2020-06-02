@@ -1,8 +1,11 @@
+// Лекция 4
+// ЗАДАЧА ПОСТРОЕНИЯ КРАТЧАЙШЕГО СВЯЗЫВАЮЩЕГО ДЕРЕВА
+// Алгоритм Краскала
+
 #include <iostream>
 #include <array>
 #include <string>
 #include <iomanip>
-
 
 class Tree {
 public:
