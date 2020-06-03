@@ -2,27 +2,25 @@
 // ЗАДАЧА ПОСТРОЕНИЯ КРАТЧАЙШИХ ПУТЕЙ
 // Реализация алгоритма поиска в ширину
 
-
-
 #include <iostream>
 #include <array>
 #include <iomanip>
 using namespace std;
 
-class Tree {
+class Graph {
 public:
-	Tree();
-	Tree(const size_t& i_v_) : i_v(i_v_) { Tree();	};
-	~Tree() = default;
-	Tree(const Tree&) = default;
-	Tree& operator=(const Tree&) = default;
-	void print();
+	Graph();
+	Graph(const int& i_v_) : i_v(i_v_) { Graph();	};
+	~Graph() = default;
+	Graph(const Graph&) = default;
+	Graph& operator=(const Graph&) = default;
+	void print() const;
 
 private:
 	// количество рёбер
-	static const size_t m{ 13 };
+	static const int m{ 13 };
 	// количество вершин
-	static const size_t n{ 7 };
+	static const int n{ 7 };
 	// Начало ребра e
 	std::array<int, m> I{ 0, 0, 0, 1, 1, 1, 2, 4, 5, 3, 6, 4, 6 };
 	// Конец ребра 
@@ -38,50 +36,49 @@ private:
 	// очередь вершин для просмотра
 	array<int, n> Q{ 0 };
 	// корень дерева кратчайших путей
-	const ptrdiff_t i_v{ 0 };
+	const int i_v{ 0 };
 };
 
-Tree::Tree() {
+Graph::Graph() {
 	for (auto& it : H) it = -1;
 	for (auto& it : L) it = -1;
 	for (auto& it : R) it = n;
 	R[i_v] = 0;
 	for (auto& it : P) it = -2;
 	P[i_v] = -1;
-	Q[0] = i_v;
-	ptrdiff_t r(0), w(1);
+	Q[0] = i_v; // начальная вершина - первая в очереди на просмотр
+	int read(0); // откуда читать
+	int	write(1); // куда писать
 
-	for (ptrdiff_t k(0); k < m; ++k) {
-		ptrdiff_t i = I[k];
-		L[k] = H[i];
-		H[i] = k;
+	for (int e(0); e < m; ++e) {
+		int v = I[e]; // вершина, из которой выходит ребро e
+		L[e] = H[v]; // добавляется следующее ребро из данной вершины
+		H[v] = e; // данной ребро становится первым выходящим из данной вершины
 	}
 
 	// пока очередь не пуста
-	while (r < w) {
+	while (read < write) {
 		// берем вершину из очереди для просмотра
-		ptrdiff_t i(Q[r]);
-		++r;
+		int curr_v(Q[read]);
+		++read;
 
-		// Просмотр дуг, выходящих из вершины i
-		for (ptrdiff_t k(H[i]); k != -1; k = L[k]) {
-			ptrdiff_t j = J[k]; // Противоположная вершина
-			// Если вершина j не помечена
-			if (R[j] == n) {
-				R[j] = R[i] + 1; //Расстояние до j на 1 больше, чем до i
-				P[j] = k; //Последняя дуга на пути из i_v в j - это k
-				Q[w] = j; //Помещаем вершину j в очередь на просмотр
-				++w; //Передвигаем указатель записи
+		// Просмотр дуг, выходящих из текущей вершины
+		for (int e(H[curr_v]); e != -1; e = L[e]) {
+			int next_v = J[e]; // Противоположная вершина
+			// Если следующая вершина не помечена
+			if (R[next_v] == n) {
+				R[next_v] = R[curr_v] + 1; //Расстояние до следующей на 1 больше, чем до текущей
+				P[next_v] = e; //Последняя дуга на пути из начальной вершины в следующую после текущей
+				Q[write] = next_v; //Помещаем следующую вершину в очередь на просмотр
+				++write;
 			}
 		}
 	}
-
-	print();
 }
 
-void Tree::print() {
+void Graph::print() const{
 	std::cout << "   ";
-	for (ptrdiff_t i(0); i < m; ++i)
+	for (int i(0); i < m; ++i)
 		std::cout << setw(2) << i << " ";
 	std::cout << "\nI: ";
 	for (const auto& it : I)
@@ -98,8 +95,7 @@ void Tree::print() {
 	std::cout << "\n";
 }
 
-
-
 int main() {
-	Tree obj{ Tree() };
+	Graph obj{ Graph() };
+	obj.print();
 }

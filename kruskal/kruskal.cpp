@@ -13,12 +13,12 @@ public:
     ~Graph() = default;
     Graph(const Graph&) = default;
     Graph& operator=(const Graph&) = default;
-    void print();
+    void print() const;
 
 private:
     void sort();
     void surface(int i, int k);
-    int find(const int& i);
+    int find(const int& i) const;
     void unite(const int& mi, const int& mj);
 
     static const size_t m{ 13 };
@@ -97,7 +97,7 @@ void Graph::sort() {
 }
 
 // возвращает номер подмножества, в которое входит вершина i
-int Graph::find(const int& i) {
+int Graph::find(const int& i) const {
     return M[i];
 }
 
@@ -118,7 +118,7 @@ Graph::Graph() {
 
     // Просмотр ребер графа по возрастанию длины
     // Заканчиваем просмотр после исчерпания дуг графа
-    // или когда полностью сформируется дерево
+    // и когда полностью сформируется дерево
     for (int e(0); e < m && pos < n - 1; ++e) {
         int i(I[e]);
         int j(J[e]);
@@ -135,7 +135,7 @@ Graph::Graph() {
     print();
 }
 
-void Graph::print() {
+void Graph::print() const {
     std::cout << "   ";
     for (int i(0); i < m; ++i)
         std::cout << std::setw(2) << i << " ";
