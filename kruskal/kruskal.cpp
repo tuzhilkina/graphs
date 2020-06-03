@@ -7,20 +7,19 @@
 #include <string>
 #include <iomanip>
 
-class Tree {
+class Graph {
 public:
-    Tree();
-    ~Tree() = default;
-    Tree(const Tree&) = default;
-    Tree& operator=(const Tree&) = default;
+    Graph();
+    ~Graph() = default;
+    Graph(const Graph&) = default;
+    Graph& operator=(const Graph&) = default;
     void print();
 
 private:
-    // Сортировка ребер по возрастанию длины
     void sort();
-    void surface(ptrdiff_t i, ptrdiff_t k);
-    int find(const ptrdiff_t& i);
-    void unite(const ptrdiff_t& mi, const ptrdiff_t& mj);
+    void surface(int i, int k);
+    int find(const int& i);
+    void unite(const int& mi, const int& mj);
 
     static const size_t m{ 13 };
     static const size_t n{ 7 };
@@ -31,75 +30,104 @@ private:
     // Длина ребра
     std::array<int, m> C{ 9, 6, 9, 4, 8, 6, 7, 3, 5, 2, 4, 3, 4 };
     // Включенные в связывающее дерево ребра
-    std::array<int, n - 1> K{ 0 };
+    std::array<int, n - 1> K{ 0 }; 
     // Номер подмножества, в которое входит вершина i
     std::array<int, n> M{ 0 };
 };
 
-void Tree::surface(ptrdiff_t i, ptrdiff_t k) {
-    ptrdiff_t j(0), m(2 * i);
-    std::array<int, 3> copy{ I[i], J[i], C[i] };
-    while (m <= k) {
-        if (m == k) j = m;
+// Преобразует почти упорядоченное дерево в упорядоченноеэ
+// упорядоченное дерево - значение в его вершине не меньше, чем значения в дочерних вершинах
+// частично упорядоченное дерево - упорядоченность выполняется для каждой из вершин, но не для корня
+void Graph::surface(int root, int max) {
+    // root - корень поддерева
+    // max - элемент массива с максимальным индексом, который принадлежит дереву, то есть конец дерева
+    int child(-1); // большая из вершин поддерева
+    // сохранение значения корня поддерева
+    int i_r(I[root]), j_r(J[root]), c_r(C[root]);
+    // пока мы находимся в пределах поддерева
+    while (2 * root <= max) {
+        // если левая вершина совпадает с максимальным элементом поддерева
+        if (2 * root == max)
+            child = 2 * root; // то это нужная вершина
         else
-            if (C[m] > C[m + 1]) j = m;
-            else j = m + 1;
-        if (C[j] > copy[2]) {
-            I[i] = I[j];
-            J[i] = J[j];
-            C[i] = C[j];
-            i = j;
-            m = 2 * i;
+            // выбираем большую вершину. При равенстве выбирается правая
+            (C[2 * root] > C[2 * root + 1]) ? (child = 2 * root) : (child = 2 * root + 1);
+        
+        // если вершина больше корня
+        if (C[child] > c_r) {
+            // большая вершина становится корнем
+            I[root] = I[child];
+            J[root] = J[child];
+            C[root] = C[child];
+            root = child;
         }
+        // в вершине находится больший элемент
         else break;
     }
-    I[i] = copy[0];
-    J[i] = copy[1];
-    C[i] = copy[2];
+    // перенос корня всего поддерева на место, где находилась большая вершина
+    I[root] = i_r;
+    J[root] = j_r;
+    C[root] = c_r;
 }
 
-void Tree::sort() {
-    ptrdiff_t s = m - 1;
-    for (ptrdiff_t i(s / 2); i >= 1; --i)
-        surface(i, s);
-    for (ptrdiff_t i(s); i >= 1; --i) {
+void Graph::sort() {
+    int last = m - 1; // номер последнего элемента в массиве
+    // идем по "уровням" - от нижнего к верхнему
+    // на нижнем уровне поддерево - корень + 2 вершины
+    // в корне оказывается большее из 3 чисел
+    // на верхних уровнях нет необхомости просматривать все многоуровневое поддерево целиком:
+    // большие элементы нижних уровней располагаются в вершинах, исходящих из корня
+    // в результате получаем упорядоченное дерево
+    for (int i(last / 2); i > 0; --i)
+        surface(i, last);
+
+    // рассматриваем дерево, корень которого - 0
+    // а конец дерева - последний элемент перед упорядоченной областью
+    for (int i(last); i > 0; --i) {
+        // в результате образуется упорядоченное дерево
+        // в вершине упорядоченного дерева находиться больший элемент
         surface(0, i);
+        // больший элемент переносится в конец дерева
+        // конец дерева теперь принадлежит упорядоченной области
+        // дерево становится частично упорядоченным
         std::swap(I[i], I[0]);
         std::swap(J[i], J[0]);
         std::swap(C[i], C[0]);
     }
 }
 
-int Tree::find(const ptrdiff_t& i) {
+// возвращает номер подмножества, в которое входит вершина i
+int Graph::find(const int& i) {
     return M[i];
 }
-void Tree::unite(const ptrdiff_t& mi, const ptrdiff_t& mj) {
+
+// объединяет подмножества i и j в подмножество j
+void Graph::unite(const int& mi, const int& mj) {
     for (auto& it : M)
         if (it == mi)
             it = mj;
 }
 
-
-Tree::Tree() {
+Graph::Graph() {
     sort();
     // Каждая из вершин образует отдельное подмножество
-    for (ptrdiff_t i(0); i < n; ++i)
-        M[i] = i;
+    for (int v(0); v < n; ++v)
+        M[v] = v;
     // Указатель на первую свободную позицию в массиве K
-    ptrdiff_t w(0);
+    int pos(0);
 
     // Просмотр ребер графа по возрастанию длины
     // Заканчиваем просмотр после исчерпания дуг графа
     // или когда полностью сформируется дерево
-    for (ptrdiff_t k(0); k < m && w < n - 1; ++k) {
-        ptrdiff_t i(I[k]);
-        ptrdiff_t j(J[k]);
+    for (int e(0); e < m && pos < n - 1; ++e) {
+        int i(I[e]);
+        int j(J[e]);
         int mi = find(i);
         int mj = find(j);
         // Если i и j находятся в разных подмножествах, т.е. не образуется цикл
         if (mi != mj) {
-            K[w] = k; // Добавляем ребро k в граф K
-            ++w;
+            K[pos] = e; // Добавляем ребро e в дерево K
+            ++pos;
             unite(mi, mj);
         }
     }
@@ -107,9 +135,9 @@ Tree::Tree() {
     print();
 }
 
-void Tree::print() {
+void Graph::print() {
     std::cout << "   ";
-    for (ptrdiff_t i(0); i < m; ++i)
+    for (int i(0); i < m; ++i)
         std::cout << std::setw(2) << i << " ";
     std::cout << "\nI: ";
     for (const auto& it : I)
@@ -128,5 +156,5 @@ void Tree::print() {
 
 
 int main() {
-    Tree obj{ Tree() };
+    Graph obj{ Graph() };
 }
