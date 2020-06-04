@@ -50,7 +50,7 @@ Graph::Graph() {
 		L[e] = H[v];
 		H[v] = e;
 	}
-	for (auto& it : R) it = 1024;
+	for (auto& it : R) it = numeric_limits<int>::max();
 	for (auto& it : P) it = -2; // все вершины недоступны
 	R[i_v] = 0; // расстояние от начальной вершины до самой себя
 	P[i_v] = -1; // у начальной вершины нет предка
@@ -111,7 +111,7 @@ void Graph::print() const{
 	cout << "\nL: ";
 	for (ptrdiff_t i(0); i < m; ++i)
 		cout << setw(3) << L[i] << " ";
-	std::cout << "\nP: ";
+	std::cout << "\n\nP: ";
 	for (const auto& it : P)
 		std::cout << setw(3) << it << " ";
 	std::cout << "\nR: ";
@@ -121,6 +121,8 @@ void Graph::print() const{
 }
 
 int main() {
+	const clock_t begin_time = clock();
 	Graph obj{ Graph() };
 	obj.print();
+	cout << "\n\nTime: " << float(clock() - begin_time) / CLOCKS_PER_SEC << "\n\n";
 }
