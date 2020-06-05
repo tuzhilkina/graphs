@@ -120,7 +120,7 @@ Graph::Graph() {
 					insert(next_v, R[next_v]);
 				}
 			}
-			v = get(b);
+			v = get(b); // выбираем новую вершину из черпака
 		}
 	}
 }

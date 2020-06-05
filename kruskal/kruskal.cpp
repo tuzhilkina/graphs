@@ -45,13 +45,13 @@ void Graph::surface(int root, int max) {
     // сохранение значения корня поддерева
     int i_r(I[root]), j_r(J[root]), c_r(C[root]);
     // пока мы находимся в пределах поддерева
-    while (2 * root <= max) {
+    while (2 * root + 1 <= max) {
         // если левая вершина совпадает с максимальным элементом поддерева
-        if (2 * root == max)
-            child = 2 * root; // то это нужная вершина
+        if (2 * root + 1 == max)
+            child = 2 * root + 1; // то это нужная вершина
         else
             // выбираем большую вершину. При равенстве выбирается правая
-            (C[2 * root] > C[2 * root + 1]) ? (child = 2 * root) : (child = 2 * root + 1);
+            (C[2 * root + 1] > C[2 * root + 2]) ? (child = 2 * root + 1) : (child = 2 * root + 2);
         
         // если вершина больше корня
         if (C[child] > c_r) {
